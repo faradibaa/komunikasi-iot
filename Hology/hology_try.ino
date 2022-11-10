@@ -11,12 +11,12 @@
 // aktuator: servo, LCD, chatbot
 
 // variabel yang dibutuhkan
-float distance = 0, threshold = 0; // jarak, batas
+float distance = 9, threshold = 10; // jarak, batas
 int degree = 0; // sudut gerak servo
 
 // menyambungkan ke WiFi
-const *char ssid = "Nyanko";
-const *char pass = "meongnyan";
+const char *ssid = "Nyanko";
+const char *pass = "meongnyan";
 
 // inisialisasi telegram bot
 #define TOKEN "5711045728:AAEnTxM37bzVPXFr-nCxALZuXShOHTWAH9c"
@@ -28,21 +28,19 @@ const *char pass = "meongnyan";
 
 HCSR04 hc(5, 6); // trig pin, echo pin
 Servo servo;
-X509List cert(TELEGRAM_CERTIFICATE_ROOT);
+X509List cert(TELEGRAM_CERTIFICATE_ROOT); // ini buat apa? // X509 certificates are used to identify peers in TLS connections
 WiFiClientSecure client;
 UniversalTelegramBot bot(TOKEN, client);
 
 void setup() {
   Serial.begin(9600);
   client.setTrustAnchors(&cert); // menambahkan root certificate untuk api.telegram.org
-}
 
-void loop() {
   // mengkoneksikan ke WiFi
   Serial.print("Connecting Wifi: ");
   Serial.println(ssid);
-  WiFi.mode(WIFI_STA); // ini buat apa ya?
-  WiFi.begin(ssid, password);
+  WiFi.mode(WIFI_STA); // ini buat apa ya? 
+  WiFi.begin(ssid, pass);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
@@ -51,14 +49,17 @@ void loop() {
   Serial.println("WiFi connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-  
+}
+
+void loop() {
   // Sensor ultrasonik
   distance = hc.dist();
   Serial.print("Jarak yang terbaca: "); // mengecek jarak yang terbaca sensor
   Serial.println(distance);
-  if(distance < threshold) {
+  distance++;
+  if(distance > threshold) {
     // Chatbot telegram
-    bot.sendMessage(BOT_ID, "Bot started up", "");
+    bot.sendMessage(BOT_ID, "Bot started up", ""); // sendMessage(String chat_id, String text, String parse_mode = "")
     Serial.println("Notifikasi telah dikirim ke telegram!");
   }
 
